@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/app_scaffold.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -7,12 +8,8 @@ class AboutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('About'),
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
-      ),
+    return AppScaffold(
+      currentIndex: 1,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -63,14 +60,6 @@ class AboutPage extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            TextButton.icon(
-              onPressed: () {
-                Navigator.pushNamed(context, '/');
-              },
-              icon: const Icon(Icons.home),
-              label: const Text('Go to Home Screen'),
             ),
           ],
         ),

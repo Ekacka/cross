@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/app_scaffold.dart'; // import your reusable scaffold
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -14,12 +15,8 @@ class HomeScreen extends StatelessWidget {
     Orientation orientation = MediaQuery.of(context).orientation;
     bool isPortrait = orientation == Orientation.portrait;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shopping List'),
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
-      ),
+    return AppScaffold(
+      currentIndex: 0,
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: isPortrait
