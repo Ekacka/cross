@@ -7,6 +7,8 @@ class HomeScreen extends StatelessWidget {
   final List<String> items = const [
     'Milk', 'Bread', 'Eggs', 'Tomatoes', 'Cheese',
     'Chicken', 'Coffee', 'Apples', 'Bananas', 'Rice',
+    'Yogurt', 'Pasta','Milk', 'Bread', 'Eggs', 'Tomatoes', 'Cheese',
+    'Chicken', 'Coffee', 'Apples', 'Bananas', 'Rice',
     'Yogurt', 'Pasta'
   ];
 
