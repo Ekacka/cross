@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'screens/home_screen.dart';
 import 'screens/about_page.dart';
+import 'l10n/app_localizations.dart';
 
 void main() => runApp(const MyApp());
 
@@ -12,16 +14,28 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Shopping List App',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
-        textTheme: const TextTheme(
-          headlineLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-          titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          bodyLarge: TextStyle(fontSize: 16),
-        ),
-      ),
+      theme: ThemeData.light(useMaterial3: true),
+      darkTheme: ThemeData.dark(useMaterial3: true),
+      themeMode: ThemeMode.system, // Auto-switch theme
+
+      localeResolutionCallback: (locale, supportedLocales) {
+        if (locale == null) return const Locale('kk');
+        for (var supported in supportedLocales) {
+          if (supported.languageCode == locale.languageCode) return supported;
+        }
+        return const Locale('kk'); // Default to Kazakh
+      },
+
+      supportedLocales: const [
+        Locale('en'), Locale('ru'), Locale('kk'),
+      ],
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+
       initialRoute: '/',
       routes: {
         '/': (context) => const HomeScreen(),

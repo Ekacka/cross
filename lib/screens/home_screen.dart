@@ -1,57 +1,99 @@
 import 'package:flutter/material.dart';
-import '../widgets/app_scaffold.dart'; // import your reusable scaffold
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../widgets/app_scaffold.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  final List<String> items = const [
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<String> items = [
     'Milk', 'Bread', 'Eggs', 'Tomatoes', 'Cheese',
-    'Chicken', 'Coffee', 'Apples', 'Bananas', 'Rice',
-    'Yogurt', 'Pasta','Milk', 'Bread', 'Eggs', 'Tomatoes', 'Cheese',
-    'Chicken', 'Coffee', 'Apples', 'Bananas', 'Rice',
-    'Yogurt', 'Pasta'
+    'Chicken', 'Coffee', 'Apples', 'Bananas'
   ];
+
+  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    Orientation orientation = MediaQuery.of(context).orientation;
-    bool isPortrait = orientation == Orientation.portrait;
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+    final local = AppLocalizations.of(context)!;
 
     return AppScaffold(
       currentIndex: 0,
       body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: isPortrait
-            ? ListView.builder(
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            return _buildItemCard(context, items[index]);
-          },
-        )
-            : GridView.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 3.5,
-          children: items
-              .map((item) => _buildItemCard(context, item))
-              .toList(),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            Text(local.title, style: Theme.of(context).textTheme.headlineLarge),
+            const SizedBox(height: 12),
+            Text(local.longPressToRemove),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _controller,
+              decoration: InputDecoration(
+                labelText: local.addItem,
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () {
+                    final text = _controller.text.trim();
+                    if (text.isNotEmpty) {
+                      setState(() {
+                        items.add(text);
+                        _controller.clear();
+                      });
+                    }
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: isPortrait
+                  ? ListView.builder(
+                itemCount: items.length,
+                itemBuilder: (context, index) =>
+                    _buildItemCard(context, items[index], index),
+              )
+                  : GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 3.5,
+                children: List.generate(
+                  items.length,
+                      (index) => _buildItemCard(context, items[index], index),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildItemCard(BuildContext context, String item) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 3,
-      child: ListTile(
-        leading: const Icon(Icons.shopping_cart_outlined),
-        title: Text(
-          item,
-          style: Theme.of(context).textTheme.bodyLarge,
+  Widget _buildItemCard(BuildContext context, String item, int index) {
+    return GestureDetector(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$item tapped!')),
+        );
+      },
+      onLongPress: () {
+        setState(() {
+          items.removeAt(index);
+        });
+      },
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ListTile(
+          leading: const Icon(Icons.shopping_cart),
+          title: Text(item),
         ),
-        trailing: const Icon(Icons.check_box_outline_blank),
       ),
     );
   }
