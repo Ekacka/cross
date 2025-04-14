@@ -3,8 +3,14 @@ import 'package:flutter/material.dart';
 class AppScaffold extends StatelessWidget {
   final Widget body;
   final int currentIndex;
+  final Widget? floatingActionButton; // Add floatingActionButton parameter
 
-  const AppScaffold({super.key, required this.body, required this.currentIndex});
+  const AppScaffold({
+    super.key,
+    required this.body,
+    required this.currentIndex,
+    this.floatingActionButton, // Add floatingActionButton in the constructor
+  });
 
   void _onItemTapped(BuildContext context, int index) {
     if (index == currentIndex) return;
@@ -19,6 +25,7 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: body,
+      floatingActionButton: floatingActionButton, // Pass the floatingActionButton
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         selectedItemColor: Colors.teal,

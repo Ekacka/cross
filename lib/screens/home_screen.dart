@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../widgets/app_scaffold.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,87 +12,132 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<String> items = [
     'Milk', 'Bread', 'Eggs', 'Tomatoes', 'Cheese',
-    'Chicken', 'Coffee', 'Apples', 'Bananas'
+    'Chicken', 'Coffee', 'Apples', 'Bananas', 'Rice',
+    'Yogurt', 'Pasta'
   ];
 
-  final TextEditingController _controller = TextEditingController();
+  List<bool> isItemDone = List.generate(12, (index) => false);
+
+  void _addNewItem(String item) {
+    setState(() {
+      items.add(item);
+      isItemDone.add(false);  // Add corresponding state for the new item
+    });
+  }
+
+  void _removeItem(int index) {
+    setState(() {
+      items.removeAt(index);
+      isItemDone.removeAt(index); // Remove the corresponding state for the item
+    });
+  }
+
+  void _toggleItemDone(int index) {
+    setState(() {
+      isItemDone[index] = !isItemDone[index];
+    });
+  }
+
+  void _showAddItemDialog() {
+    String newItem = '';
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          AppLocalizations.of(context)?.addItem ?? 'Add Item',
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
+        content: TextField(
+          autofocus: true,
+          onChanged: (value) => newItem = value,
+          decoration: InputDecoration(
+            hintText: AppLocalizations.of(context)?.enterItemName ?? 'Enter item name',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppLocalizations.of(context)?.cancel ?? 'Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (newItem.trim().isNotEmpty) {
+                _addNewItem(newItem.trim());
+              }
+              Navigator.pop(context);
+            },
+            child: Text(AppLocalizations.of(context)?.add ?? 'Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
-    final local = AppLocalizations.of(context)!;
+    Orientation orientation = MediaQuery.of(context).orientation;
+    bool isPortrait = orientation == Orientation.portrait;
 
     return AppScaffold(
       currentIndex: 0,
       body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Text(local.title, style: Theme.of(context).textTheme.headlineLarge),
-            const SizedBox(height: 12),
-            Text(local.longPressToRemove),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                labelText: local.addItem,
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    final text = _controller.text.trim();
-                    if (text.isNotEmpty) {
-                      setState(() {
-                        items.add(text);
-                        _controller.clear();
-                      });
-                    }
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: isPortrait
-                  ? ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (context, index) =>
-                    _buildItemCard(context, items[index], index),
-              )
-                  : GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 3.5,
-                children: List.generate(
-                  items.length,
-                      (index) => _buildItemCard(context, items[index], index),
-                ),
-              ),
-            ),
-          ],
+        padding: const EdgeInsets.all(12.0),
+        child: isPortrait
+            ? ListView.builder(
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            return _buildItemCard(context, items[index], index);
+          },
+        )
+            : GridView.count(
+          crossAxisCount: 2,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          childAspectRatio: 3.5,
+          children: items
+              .asMap()
+              .map((index, item) {
+            return MapEntry(index, _buildItemCard(context, item, index));
+          })
+              .values
+              .toList(),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddItemDialog,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Icons.add),
       ),
     );
   }
 
   Widget _buildItemCard(BuildContext context, String item, int index) {
     return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$item tapped!')),
-        );
-      },
       onLongPress: () {
-        setState(() {
-          items.removeAt(index);
-        });
+        _removeItem(index);  // Remove item on long press
+      },
+      onHorizontalDragEnd: (details) {
+        if (details.primaryVelocity! > 0) {
+          _toggleItemDone(index);  // Mark item as done on swipe right
+        }
       },
       child: Card(
-        elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 3,
         child: ListTile(
-          leading: const Icon(Icons.shopping_cart),
-          title: Text(item),
+          leading: const Icon(Icons.shopping_cart_outlined),
+          title: Text(
+            item,
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+              decoration: isItemDone[index]
+                  ? TextDecoration.lineThrough
+                  : TextDecoration.none,
+            ),
+          ),
+          trailing: isItemDone[index]
+              ? const Icon(Icons.check_box)
+              : const Icon(Icons.check_box_outline_blank),
         ),
       ),
     );

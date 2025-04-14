@@ -1,5 +1,12 @@
 {
   "title": "Shopping List",
-  "longPressToRemove": "Long press to remove item",
-  "addItem": "Add Item"
+  "longPressToRemove": "Long press to remove",
+  "addItem": "Add Item",
+  "enterItemName": "Enter item name",
+  "cancel": "Cancel",
+  "add": "Add",
+  "about_app": "About the App",
+  "about_app_description": "This Shopping List app helps users efficiently create and manage their shopping lists. Users can add items they need to buy, mark items as purchased, and stay organized while shopping. The simple and intuitive interface ensures a smooth experience in tracking shopping needs without hassle.",
+  "credits": "Credits",
+  "credits_description": "Developed by Yesbosynov Sanzhar and Kuanysh Bekzhan in the scope of the course “Crossplatform Development” at Astana IT University.\n\nMentor: Assistant Professor Abzal Kyzyrkanov"
 }

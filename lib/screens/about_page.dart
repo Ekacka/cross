@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/app_scaffold.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -7,6 +8,7 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).textTheme;
+    final localization = AppLocalizations.of(context);
 
     return AppScaffold(
       currentIndex: 1,
@@ -25,12 +27,10 @@ class AboutPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('About the App', style: theme.headlineLarge),
+                    Text(localization?.about_app ?? 'About the App', style: theme.headlineLarge),
                     const SizedBox(height: 12),
                     Text(
-                      'This Shopping List app helps users efficiently create and manage their shopping lists. '
-                          'Users can add items they need to buy, mark items as purchased, and stay organized while shopping. '
-                          'The simple and intuitive interface ensures a smooth experience in tracking shopping needs without hassle.',
+                      localization?.about_app_description ?? 'Description not available.',
                       style: theme.bodyLarge,
                     ),
                   ],
@@ -49,12 +49,10 @@ class AboutPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Credits', style: theme.titleLarge),
+                    Text(localization?.credits ?? 'Credits', style: theme.titleLarge),
                     const SizedBox(height: 12),
                     Text(
-                      'Developed by Yesbossynov Sanzhar and Kuanysh Bekzhan in the scope of the course '
-                          '“Crossplatform Development” at Astana IT University.\n\n'
-                          'Mentor: Assistant Professor Abzal Kyzyrkanov',
+                      localization?.credits_description ?? 'Credits description not available.',
                       style: theme.bodyLarge,
                     ),
                   ],
