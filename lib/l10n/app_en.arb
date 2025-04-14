@@ -1,12 +1,24 @@
 {
   "title": "Shopping List",
-  "longPressToRemove": "Long press to remove",
+  "longPressToRemove": "Long press to delete",
   "addItem": "Add Item",
   "enterItemName": "Enter item name",
   "cancel": "Cancel",
   "add": "Add",
   "about_app": "About the App",
-  "about_app_description": "This Shopping List app helps users efficiently create and manage their shopping lists. Users can add items they need to buy, mark items as purchased, and stay organized while shopping. The simple and intuitive interface ensures a smooth experience in tracking shopping needs without hassle.",
+  "about_app_description": "This Shopping List app helps users effectively create and manage their shopping lists. Users can add items they want to purchase, mark items as bought, and keep their shopping organized. The simple and intuitive interface provides a convenient experience for tracking shopping needs.",
   "credits": "Credits",
-  "credits_description": "Developed by Yesbosynov Sanzhar and Kuanysh Bekzhan in the scope of the course “Crossplatform Development” at Astana IT University.\n\nMentor: Assistant Professor Abzal Kyzyrkanov"
+  "credits_description": "This app was developed by Yesbosynov Sanzhar and Kuanysh Bekzhan as part of the 'Cross-platform Development' course at Astana IT University.\n\nSupervisor: Associate Professor Abzal Kyzarkanov",
+  "item_milk": "Milk",
+  "item_bread": "Bread",
+  "item_eggs": "Eggs",
+  "item_tomatoes": "Tomatoes",
+  "item_cheese": "Cheese",
+  "item_chicken": "Chicken",
+  "item_coffee": "Coffee",
+  "item_apples": "Apples",
+  "item_bananas": "Bananas",
+  "item_rice": "Rice",
+  "item_yogurt": "Yogurt",
+  "item_pasta": "Pasta"
 }
