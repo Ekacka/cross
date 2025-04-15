@@ -12,50 +12,54 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<String> items = [];
   List<bool> isItemDone = [];
+  bool _initialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    // Delay localization access until after build context is ready
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
       final local = AppLocalizations.of(context)!;
-      setState(() {
-        items = [
-          local.item_milk,
-          local.item_bread,
-          local.item_eggs,
-          local.item_tomatoes,
-          local.item_cheese,
-          local.item_chicken,
-          local.item_coffee,
-          local.item_apples,
-          local.item_bananas,
-          local.item_rice,
-          local.item_yogurt,
-          local.item_pasta,
-        ];
-        isItemDone = List.filled(items.length, false);
-      });
-    });
+      items = [
+        local.item_milk,
+        local.item_bread,
+        local.item_eggs,
+        local.item_tomatoes,
+        local.item_cheese,
+        local.item_chicken,
+        local.item_coffee,
+        local.item_apples,
+        local.item_bananas,
+        local.item_rice,
+        local.item_yogurt,
+        local.item_pasta,
+      ];
+      isItemDone = List.filled(items.length, false, growable: true);
+      _initialized = true;
+    }
   }
 
   void _addNewItem(String item) {
     setState(() {
       items.add(item);
-      isItemDone.add(false);
+      isItemDone.add(false); // both updated
     });
   }
 
+
   void _removeItem(int index) {
     setState(() {
-      items.removeAt(index);
-      isItemDone.removeAt(index);
+      if (index >= 0 && index < items.length) {
+        items.removeAt(index);
+        isItemDone.removeAt(index);
+      }
     });
   }
 
   void _toggleItemDone(int index) {
     setState(() {
-      isItemDone[index] = !isItemDone[index];
+      if (index >= 0 && index < isItemDone.length) {
+        isItemDone[index] = !isItemDone[index];
+      }
     });
   }
 
@@ -72,8 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
           autofocus: true,
           onChanged: (value) => newItem = value,
           decoration: InputDecoration(
-            hintText:
-            AppLocalizations.of(context)?.enterItemName ?? 'Enter item name',
+            hintText: AppLocalizations.of(context)?.enterItemName ?? 'Enter item name',
           ),
         ),
         actions: [
@@ -100,11 +103,6 @@ class _HomeScreenState extends State<HomeScreen> {
     Orientation orientation = MediaQuery.of(context).orientation;
     bool isPortrait = orientation == Orientation.portrait;
 
-    // Show loader while waiting for localization-based initialization
-    if (items.isEmpty || isItemDone.length != items.length) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     return AppScaffold(
       currentIndex: 0,
       body: Padding(
@@ -123,11 +121,8 @@ class _HomeScreenState extends State<HomeScreen> {
           childAspectRatio: 3.5,
           children: items
               .asMap()
-              .map((index, item) {
-            return MapEntry(
-                index, _buildItemCard(context, item, index));
-          })
-              .values
+              .entries
+              .map((entry) => _buildItemCard(context, entry.value, entry.key))
               .toList(),
         ),
       ),
@@ -145,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _removeItem(index);
       },
       onHorizontalDragEnd: (details) {
-        if (details.primaryVelocity! > 0) {
+        if (details.primaryVelocity != null && details.primaryVelocity! > 0) {
           _toggleItemDone(index);
         }
       },
