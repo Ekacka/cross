@@ -7,7 +7,9 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final colorScheme = theme.colorScheme;
     final localization = AppLocalizations.of(context);
 
     return AppScaffold(
@@ -21,17 +23,20 @@ class AboutPage extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              color: Colors.white,
+              color: colorScheme.surface,
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(localization?.about_app ?? 'About the App', style: theme.headlineLarge),
+                    Text(
+                      localization?.about_app ?? 'About the App',
+                      style: textTheme.headlineLarge?.copyWith(color: colorScheme.onSurface),
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       localization?.about_app_description ?? 'Description not available.',
-                      style: theme.bodyLarge,
+                      style: textTheme.bodyLarge?.copyWith(color: colorScheme.onSurface),
                     ),
                   ],
                 ),
@@ -43,17 +48,20 @@ class AboutPage extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              color: Colors.white,
+              color: colorScheme.surface,
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(localization?.credits ?? 'Credits', style: theme.titleLarge),
+                    Text(
+                      localization?.credits ?? 'Credits',
+                      style: textTheme.titleLarge?.copyWith(color: colorScheme.onSurface),
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       localization?.credits_description ?? 'Credits description not available.',
-                      style: theme.bodyLarge,
+                      style: textTheme.bodyLarge?.copyWith(color: colorScheme.onSurface),
                     ),
                   ],
                 ),
