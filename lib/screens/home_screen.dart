@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../widgets/app_scaffold.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -41,10 +40,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void _addNewItem(String item) {
     setState(() {
       items.add(item);
-      isItemDone.add(false); // both updated
+      isItemDone.add(false);
     });
   }
-
 
   void _removeItem(int index) {
     setState(() {
@@ -103,16 +101,16 @@ class _HomeScreenState extends State<HomeScreen> {
     Orientation orientation = MediaQuery.of(context).orientation;
     bool isPortrait = orientation == Orientation.portrait;
 
-    return AppScaffold(
-      currentIndex: 0,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)?.title ?? 'Shopping List'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: isPortrait
             ? ListView.builder(
           itemCount: items.length,
-          itemBuilder: (context, index) {
-            return _buildItemCard(context, items[index], index);
-          },
+          itemBuilder: (context, index) => _buildItemCard(context, items[index], index),
         )
             : GridView.count(
           crossAxisCount: 2,
@@ -127,18 +125,16 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddItemDialog,
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        onPressed: _showAddItemDialog, // Show the dialog when pressed
         child: const Icon(Icons.add),
+        tooltip: 'Add Item', // Tooltip when hovering or long pressing
       ),
     );
   }
 
   Widget _buildItemCard(BuildContext context, String item, int index) {
     return GestureDetector(
-      onLongPress: () {
-        _removeItem(index);
-      },
+      onLongPress: () => _removeItem(index),
       onHorizontalDragEnd: (details) {
         if (details.primaryVelocity != null && details.primaryVelocity! > 0) {
           _toggleItemDone(index);

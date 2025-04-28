@@ -20,5 +20,7 @@
   "item_bananas": "Bananas",
   "item_rice": "Rice",
   "item_yogurt": "Yogurt",
-  "item_pasta": "Pasta"
+  "item_pasta": "Pasta",
+  "language": "Language",
+  "darkTheme": "Dark Theme"
 }

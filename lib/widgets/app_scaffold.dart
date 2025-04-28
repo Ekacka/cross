@@ -1,61 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../screens/home_screen.dart'; // Make sure to import HomeScreen
+import '../screens/settings_page.dart'; // Make sure to import SettingsPage
+import '../screens/about_page.dart'; // Import the AboutPage
 
-class AppScaffold extends StatelessWidget {
-  final Widget body;
-  final int currentIndex;
-  final Widget? floatingActionButton;
-  final bool showAppBar;
-  final String? appBarTitle;
+class AppScaffold extends StatefulWidget {
+  const AppScaffold({super.key});
 
-  const AppScaffold({
-    super.key,
-    required this.body,
-    required this.currentIndex,
-    this.floatingActionButton,
-    this.showAppBar = false,
-    this.appBarTitle,
-  });
+  @override
+  State<AppScaffold> createState() => _AppScaffoldState();
+}
 
-  void _onItemTapped(BuildContext context, int index) {
-    if (index == currentIndex) return;
+class _AppScaffoldState extends State<AppScaffold> {
+  int _currentIndex = 0;
 
-    switch (index) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/');
-        break;
-      case 1:
-        Navigator.pushReplacementNamed(context, '/about');
-        break;
-    }
-  }
+  final List<Widget> _screens = [
+    const HomeScreen(),
+    const AboutPage(), // Add AboutPage here
+    const settings_page(),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final local = AppLocalizations.of(context)!;
-
     return Scaffold(
-      appBar: showAppBar
-          ? AppBar(
-        title: Text(appBarTitle ?? local.title),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-      )
-          : null,
-      body: body,
-      floatingActionButton: floatingActionButton,
+      body: _screens[_currentIndex], // Display the screen based on the current index
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
+        currentIndex: _currentIndex,
         selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) => _onItemTapped(context, index),
-        items: [
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index; // Update the index when a tab is clicked
+          });
+        },
+        items: const [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.list),
-            label: local.title,
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.info_outline),
-            label: local.about_app,
+            icon: Icon(Icons.info_outline), // Icon for About page
+            label: 'About Us',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_outlined),
+            label: 'Settings',
           ),
         ],
       ),
