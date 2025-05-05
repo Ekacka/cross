@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../provider/theme_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../themes.dart';
 
 class settings_page extends StatelessWidget {
   const settings_page({super.key});
@@ -34,7 +33,7 @@ class settings_page extends StatelessWidget {
             ],
             onChanged: (value) {
               if (value != null) {
-                themeProvider.changeLanguage(value);
+                themeProvider.setLanguage(value);
               }
             },
           ),

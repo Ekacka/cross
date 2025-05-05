@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../screens/home_screen.dart'; // Make sure to import HomeScreen
-import '../screens/settings_page.dart'; // Make sure to import SettingsPage
-import '../screens/about_page.dart'; // Import the AboutPage
+import '../screens/home_screen.dart';
+import '../screens/settings_page.dart';
+import '../screens/about_page.dart';
 
 class AppScaffold extends StatefulWidget {
   const AppScaffold({super.key});
@@ -15,20 +15,20 @@ class _AppScaffoldState extends State<AppScaffold> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const AboutPage(), // Add AboutPage here
+    const AboutPage(),
     const settings_page(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex], // Display the screen based on the current index
+      body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         selectedItemColor: Theme.of(context).colorScheme.primary,
         onTap: (index) {
           setState(() {
-            _currentIndex = index; // Update the index when a tab is clicked
+            _currentIndex = index;
           });
         },
         items: const [
@@ -37,7 +37,7 @@ class _AppScaffoldState extends State<AppScaffold> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.info_outline), // Icon for About page
+            icon: Icon(Icons.info_outline),
             label: 'About Us',
           ),
           BottomNavigationBarItem(

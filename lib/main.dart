@@ -1,40 +1,52 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'widgets/app_scaffold.dart';
 import 'provider/theme_provider.dart';
-import 'themes.dart'; // define lightTheme and darkTheme
+import 'screens/home_screen.dart';
+import 'screens/profile_page.dart';
+import 'screens/login_page.dart';
+import 'firebase_options.dart'; // Generate using `flutterfire configure`
 
-void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
-      child: const MyApp(),
-    ),
-  );
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    return ChangeNotifierProvider(create: (_) => ThemeProvider(), child: Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        return MaterialApp(
+          title: 'App',
+          theme: themeProvider.getTheme(),
+          home: AuthWrapper(),
+          localizationsDelegates: const [
+            // Add localization delegates
+          ],
+          supportedLocales: const [Locale('en'), Locale('kk'), Locale('ru')],
+        );
+      },
+    ));
+  }
+}
 
-    return MaterialApp(
-      title: 'Smart Shopping List',
-      debugShowCheckedModeBanner: false,
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: themeProvider.themeMode,
-      locale: themeProvider.locale,
-      supportedLocales: const [
-        Locale('en'),
-        Locale('kk'),
-        Locale('ru'),
-      ],
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      home: const AppScaffold(),
+class AuthWrapper extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (_, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasData) {
+          return HomeScreen();
+        } else {
+          return LoginPage();
+        }
+      },
     );
   }
 }
