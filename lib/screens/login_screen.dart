@@ -11,7 +11,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLogin = true; // Toggle between login and registration
+  bool _isLogin = true;
   String? _error;
 
   Future<void> _submit() async {
@@ -65,6 +65,13 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Text(_isLogin
                   ? "Don't have an account? Register"
                   : "Already have an account? Login"),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signInAnonymously();
+              },
+              child: const Text("Continue as Guest"),
             ),
           ],
         ),

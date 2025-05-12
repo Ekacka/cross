@@ -4,8 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../provider/theme_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../themes.dart';
-
 class settings_page extends StatelessWidget {
   const settings_page({super.key});
 
@@ -21,17 +19,19 @@ class settings_page extends StatelessWidget {
           if (user != null) ...[
             ListTile(
               leading: const Icon(Icons.account_circle),
-              title: Text(user.email ?? 'No email'),
-              subtitle: const Text('Logged in'),
+              title: Text(user.isAnonymous ? 'Guest' : user.email ?? 'No email'),
+              subtitle: Text(user.isAnonymous ? 'Guest Mode' : 'Logged in'),
             ),
             ElevatedButton.icon(
-              icon: const Icon(Icons.logout),
-              label: const Text("Logout"),
+              icon: Icon(user.isAnonymous ? Icons.login : Icons.logout),
+              label: Text(user.isAnonymous ? "Login" : "Logout"),
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
+                // Optionally navigate to login screen if needed
+                // Navigator.of(context).pushReplacementNamed('/login');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: user.isAnonymous ? Colors.green : Colors.red,
                 foregroundColor: Colors.white,
               ),
             ),

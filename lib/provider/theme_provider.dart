@@ -18,7 +18,7 @@ class ThemeProvider extends ChangeNotifier {
 
   void _loadUserSettings() {
     _auth.authStateChanges().listen((user) async {
-      if (user != null) {
+      if (user != null && !user.isAnonymous) {
         final snapshot = await _dbRef.child('users/${user.uid}/settings').get();
         final data = snapshot.value as Map?;
         if (data != null) {
@@ -50,7 +50,7 @@ class ThemeProvider extends ChangeNotifier {
 
   Future<void> _saveSettings() async {
     final user = _auth.currentUser;
-    if (user != null) {
+    if (user != null && !user.isAnonymous) {
       await _dbRef.child('users/${user.uid}/settings').set({
         'theme': _themeMode == ThemeMode.dark ? 'dark' : 'light',
         'language': _locale.languageCode,
