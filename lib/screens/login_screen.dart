@@ -9,73 +9,88 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _isLogin = true;
-  String? _error;
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  bool isLoading = false;
 
-  Future<void> _submit() async {
-    setState(() => _error = null);
+  Future<void> signInWithEmail() async {
+    setState(() => isLoading = true);
     try {
-      if (_isLogin) {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-      } else {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-      }
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+// Navigate to home or show success
     } on FirebaseAuthException catch (e) {
-      setState(() => _error = e.message);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? "Login failed")),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> signInAnonymously() async {
+    setState(() => isLoading = true);
+    try {
+      await FirebaseAuth.instance.signInAnonymously();
+// Navigate to home or show success
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? "Guest login failed")),
+      );
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_isLogin ? 'Login' : 'Register')),
+      appBar: AppBar(title: const Text('Login')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (_error != null) ...[
-              Text(_error!, style: TextStyle(color: Colors.red)),
-              const SizedBox(height: 10),
-            ],
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: "Email"),
+        padding: const EdgeInsets.all(16),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                ),
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: 'Password'),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: isLoading ? null : signInWithEmail,
+                  child: isLoading
+                      ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                      : const Text("Login"),
+                ),
+                const SizedBox(height: 10),
+                TextButton(
+                  onPressed: isLoading ? null : signInAnonymously,
+                  child: isLoading
+                      ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                      : const Text("Continue as Guest"),
+                ),
+              ],
             ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: "Password"),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _submit,
-              child: Text(_isLogin ? "Login" : "Register"),
-            ),
-            TextButton(
-              onPressed: () => setState(() => _isLogin = !_isLogin),
-              child: Text(_isLogin
-                  ? "Don't have an account? Register"
-                  : "Already have an account? Login"),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () async {
-                await FirebaseAuth.instance.signInAnonymously();
-              },
-              child: const Text("Continue as Guest"),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
+
 }
