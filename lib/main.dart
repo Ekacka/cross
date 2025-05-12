@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import 'firebase_options.dart';
 import 'widgets/app_scaffold.dart';
 import 'provider/theme_provider.dart';
-import 'themes.dart'; // define lightTheme and darkTheme
+import 'themes.dart';
+import 'screens/login_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
@@ -34,7 +43,18 @@ class MyApp extends StatelessWidget {
         Locale('ru'),
       ],
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      home: const AppScaffold(),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasData) {
+            return const AppScaffold();
+          } else {
+            return LoginScreen();
+          }
+        },
+      ),
     );
   }
 }

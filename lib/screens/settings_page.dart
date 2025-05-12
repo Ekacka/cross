@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../provider/theme_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -11,13 +12,33 @@ class settings_page extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final user = FirebaseAuth.instance.currentUser;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ListView(
         children: [
+          if (user != null) ...[
+            ListTile(
+              leading: const Icon(Icons.account_circle),
+              title: Text(user.email ?? 'No email'),
+              subtitle: const Text('Logged in'),
+            ),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.logout),
+              label: const Text("Logout"),
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+            ),
+            const Divider(),
+          ],
           SwitchListTile(
-            title: Text(AppLocalizations.of(context)?.  darkTheme ?? 'Dark Theme'),
+            title: Text(AppLocalizations.of(context)?.darkTheme ?? 'Dark Theme'),
             value: themeProvider.themeMode == ThemeMode.dark,
             onChanged: (value) => themeProvider.toggleTheme(value),
           ),
