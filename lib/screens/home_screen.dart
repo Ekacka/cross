@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+
 import '../provider/connectivity_provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -13,14 +17,28 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<String> items = [];
   List<bool> isItemDone = [];
+  final _box = Hive.box('shoppingBox');
   bool _initialized = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_initialized) {
+      _initialized = true;
+      _loadItems();
+      if (Provider.of<ConnectivityProvider>(context, listen: false).isOnline) {
+        _syncToFirebase();
+      }
+    }
+  }
+
+  void _loadItems() {
+    final storedItems = _box.get('items', defaultValue: []);
+    final storedStatus = _box.get('status', defaultValue: []);
+
+    if ((storedItems as List).isEmpty) {
       final local = AppLocalizations.of(context)!;
-      items = [
+      final defaultItems = [
         local.item_milk,
         local.item_bread,
         local.item_eggs,
@@ -34,9 +52,32 @@ class _HomeScreenState extends State<HomeScreen> {
         local.item_yogurt,
         local.item_pasta,
       ];
-      isItemDone = List.filled(items.length, false, growable: true);
-      _initialized = true;
+      setState(() {
+        items = defaultItems;
+        isItemDone = List<bool>.filled(defaultItems.length, false);
+      });
+      _saveItemsLocally();
+    } else {
+      setState(() {
+        items = List<String>.from(storedItems);
+        isItemDone = List<bool>.from(storedStatus);
+      });
     }
+  }
+
+  void _saveItemsLocally() {
+    _box.put('items', items);
+    _box.put('status', isItemDone);
+  }
+
+  Future<void> _syncToFirebase() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final dbRef = FirebaseDatabase.instance.ref('users/${user.uid}/shoppingList');
+    await dbRef.set({
+      'items': items,
+      'status': isItemDone,
+    });
   }
 
   void _addNewItem(String item) {
@@ -44,23 +85,33 @@ class _HomeScreenState extends State<HomeScreen> {
       items.add(item);
       isItemDone.add(false);
     });
+    _saveItemsLocally();
+    if (Provider.of<ConnectivityProvider>(context, listen: false).isOnline) {
+      _syncToFirebase();
+    }
   }
 
   void _removeItem(int index) {
+    if (index < 0 || index >= items.length) return;
     setState(() {
-      if (index >= 0 && index < items.length) {
-        items.removeAt(index);
-        isItemDone.removeAt(index);
-      }
+      items.removeAt(index);
+      isItemDone.removeAt(index);
     });
+    _saveItemsLocally();
+    if (Provider.of<ConnectivityProvider>(context, listen: false).isOnline) {
+      _syncToFirebase();
+    }
   }
 
   void _toggleItemDone(int index) {
+    if (index < 0 || index >= isItemDone.length) return;
     setState(() {
-      if (index >= 0 && index < isItemDone.length) {
-        isItemDone[index] = !isItemDone[index];
-      }
+      isItemDone[index] = !isItemDone[index];
     });
+    _saveItemsLocally();
+    if (Provider.of<ConnectivityProvider>(context, listen: false).isOnline) {
+      _syncToFirebase();
+    }
   }
 
   void _showAddItemDialog() {
@@ -127,7 +178,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: isPortrait
             ? ListView.builder(
           itemCount: items.length,
-          itemBuilder: (context, index) => _buildItemCard(context, items[index], index),
+          itemBuilder: (context, index) =>
+              _buildItemCard(context, items[index], index),
         )
             : GridView.count(
           crossAxisCount: 2,
@@ -137,18 +189,13 @@ class _HomeScreenState extends State<HomeScreen> {
           children: items
               .asMap()
               .entries
-              .map((entry) => _buildItemCard(context, entry.value, entry.key))
+              .map((entry) =>
+              _buildItemCard(context, entry.value, entry.key))
               .toList(),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: isOnline
-            ? _showAddItemDialog
-            : () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Can't add item while offline")),
-          );
-        },
+        onPressed: _showAddItemDialog, // ✅ Now always allows adding items
         child: const Icon(Icons.add),
         tooltip: 'Add Item',
       ),
