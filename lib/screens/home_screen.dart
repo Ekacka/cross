@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../provider/connectivity_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -98,12 +100,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Orientation orientation = MediaQuery.of(context).orientation;
-    bool isPortrait = orientation == Orientation.portrait;
+    final isOnline = Provider.of<ConnectivityProvider>(context).isOnline;
+    final orientation = MediaQuery.of(context).orientation;
+    final isPortrait = orientation == Orientation.portrait;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)?.title ?? 'Shopping List'),
+        bottom: !isOnline
+            ? PreferredSize(
+          preferredSize: const Size.fromHeight(30),
+          child: Container(
+            color: Colors.red,
+            height: 30,
+            alignment: Alignment.center,
+            child: const Text(
+              "You are offline",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        )
+            : null,
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -125,9 +142,15 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddItemDialog, // Show the dialog when pressed
+        onPressed: isOnline
+            ? _showAddItemDialog
+            : () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Can't add item while offline")),
+          );
+        },
         child: const Icon(Icons.add),
-        tooltip: 'Add Item', // Tooltip when hovering or long pressing
+        tooltip: 'Add Item',
       ),
     );
   }

@@ -7,6 +7,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'firebase_options.dart';
 import 'widgets/app_scaffold.dart';
 import 'provider/theme_provider.dart';
+import 'provider/connectivity_provider.dart';
 import 'themes.dart';
 import 'screens/login_screen.dart';
 
@@ -16,8 +17,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -29,7 +33,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-
     return MaterialApp(
       title: 'Smart Shopping List',
       debugShowCheckedModeBanner: false,
@@ -51,7 +54,7 @@ class MyApp extends StatelessWidget {
           } else if (snapshot.hasData) {
             return const AppScaffold();
           } else {
-            return LoginScreen();
+            return const LoginScreen();
           }
         },
       ),

@@ -39,6 +39,8 @@ dependencies:
   firebase_database: ^11.3.5
   firebase_auth: ^5.5.3
   firebase_core: ^3.13.0
+  connectivity_plus: ^5.0.2
+
 
 dev_dependencies:
   flutter_test:
