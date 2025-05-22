@@ -15,9 +15,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late Box _userBox;
   List<String> items = [];
   List<bool> isItemDone = [];
-  final _box = Hive.box('shoppingBox');
   bool _initialized = false;
 
   @override
@@ -25,35 +25,51 @@ class _HomeScreenState extends State<HomeScreen> {
     super.didChangeDependencies();
     if (!_initialized) {
       _initialized = true;
-      _loadItems();
-      if (Provider.of<ConnectivityProvider>(context, listen: false).isOnline) {
-        _syncToFirebase();
-      }
+      _initUserBox();
+    }
+  }
+
+  Future<void> _initUserBox() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final boxName = user != null ? 'shoppingBox_${user.uid}' : 'shoppingBox_guest';
+    _userBox = await Hive.openBox(boxName);
+
+    if (Provider.of<ConnectivityProvider>(context, listen: false).isOnline && user != null) {
+      await _loadFromFirebaseIfExists();
+    }
+
+    _loadItems();
+  }
+
+  Future<void> _loadFromFirebaseIfExists() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final dbRef = FirebaseDatabase.instance.ref('users/${user.uid}/shoppingList');
+
+    final snapshot = await dbRef.get();
+    if (snapshot.exists) {
+      final data = snapshot.value as Map;
+      final firebaseItems = List<String>.from(data['items'] ?? []);
+      final firebaseStatus = List<bool>.from(data['status'] ?? []);
+
+      setState(() {
+        items = firebaseItems;
+        isItemDone = firebaseStatus;
+      });
+      _saveItemsLocally();
     }
   }
 
   void _loadItems() {
-    final storedItems = _box.get('items', defaultValue: []);
-    final storedStatus = _box.get('status', defaultValue: []);
+    final storedItems = _userBox.get('items', defaultValue: []);
+    final storedStatus = _userBox.get('status', defaultValue: []);
 
     if ((storedItems as List).isEmpty) {
       final local = AppLocalizations.of(context)!;
       final defaultItems = [
-        local.item_milk,
-        local.item_bread,
-        local.item_eggs,
-        local.item_tomatoes,
-        local.item_cheese,
-        local.item_chicken,
-        local.item_coffee,
-        local.item_apples,
-        local.item_bananas,
-        local.item_rice,
-        local.item_yogurt,
-        local.item_pasta,
+
       ];
       setState(() {
-        items = defaultItems;
         isItemDone = List<bool>.filled(defaultItems.length, false);
       });
       _saveItemsLocally();
@@ -66,15 +82,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _saveItemsLocally() {
-    _box.put('items', items);
-    _box.put('status', isItemDone);
+    _userBox.put('items', items);
+    _userBox.put('status', isItemDone);
   }
 
   Future<void> _syncToFirebase() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
     final dbRef = FirebaseDatabase.instance.ref('users/${user.uid}/shoppingList');
-    await dbRef.set({
+    await dbRef.update({
       'items': items,
       'status': isItemDone,
     });
@@ -195,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddItemDialog, // ✅ Now always allows adding items
+        onPressed: _showAddItemDialog,
         child: const Icon(Icons.add),
         tooltip: 'Add Item',
       ),
