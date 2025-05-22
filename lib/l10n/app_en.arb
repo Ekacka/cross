@@ -26,5 +26,6 @@
   "loginLabel": "Login",
   "logoutLabel": "Logout",
   "guestThemeWarning": "Theme changes won't be saved in guest mode. Login to save preferences.",
+  "search": "search..",
   "guestLangWarning": "Language preference won't be saved in guest mode. Login to save preferences."
 }

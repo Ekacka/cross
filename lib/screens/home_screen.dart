@@ -20,6 +20,15 @@ class _HomeScreenState extends State<HomeScreen> {
   List<bool> isItemDone = [];
   bool _initialized = false;
 
+  TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -65,12 +74,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final storedStatus = _userBox.get('status', defaultValue: []);
 
     if ((storedItems as List).isEmpty) {
-      final local = AppLocalizations.of(context)!;
-      final defaultItems = [
-
-      ];
       setState(() {
-        isItemDone = List<bool>.filled(defaultItems.length, false);
+        items = [];
+        isItemDone = <bool>[]; // <-- FIXED here
       });
       _saveItemsLocally();
     } else {
@@ -80,6 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }
+
 
   void _saveItemsLocally() {
     _userBox.put('items', items);
@@ -171,6 +178,21 @@ class _HomeScreenState extends State<HomeScreen> {
     final orientation = MediaQuery.of(context).orientation;
     final isPortrait = orientation == Orientation.portrait;
 
+    // Filtered list and indices
+    List<String> filteredItems = items
+        .asMap()
+        .entries
+        .where((entry) => entry.value.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .map((entry) => entry.value)
+        .toList();
+
+    List<int> filteredIndices = items
+        .asMap()
+        .entries
+        .where((entry) => entry.value.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .map((entry) => entry.key)
+        .toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)?.title ?? 'Shopping List'),
@@ -191,23 +213,49 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: isPortrait
-            ? ListView.builder(
-          itemCount: items.length,
-          itemBuilder: (context, index) =>
-              _buildItemCard(context, items[index], index),
-        )
-            : GridView.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 3.5,
-          children: items
-              .asMap()
-              .entries
-              .map((entry) =>
-              _buildItemCard(context, entry.value, entry.key))
-              .toList(),
+        child: Column(
+          children: [
+            TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)?.search ?? 'Search...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: isPortrait
+                  ? ListView.builder(
+                itemCount: filteredItems.length,
+                itemBuilder: (context, i) => _buildItemCard(
+                  context,
+                  filteredItems[i],
+                  filteredIndices[i],
+                ),
+              )
+                  : GridView.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                childAspectRatio: 3.5,
+                children: filteredItems
+                    .asMap()
+                    .entries
+                    .map((entry) => _buildItemCard(
+                  context,
+                  entry.value,
+                  filteredIndices[entry.key],
+                ))
+                    .toList(),
+              ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
