@@ -25,7 +25,9 @@ class settings_page extends StatelessWidget {
             ),
             ElevatedButton.icon(
               icon: Icon(isGuest ? Icons.login : Icons.logout),
-              label: Text(isGuest ? "Login" : "Logout"),
+              label: Text(isGuest
+                  ? AppLocalizations.of(context)?.loginLabel ?? "Login"
+                  : AppLocalizations.of(context)?.logoutLabel ?? "Logout"),
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
                 // Optional: Navigate to login screen
@@ -46,11 +48,12 @@ class settings_page extends StatelessWidget {
             onChanged: (value) => themeProvider.toggleTheme(value),
           ),
           if (isGuest)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               child: Text(
-                "Theme changes won't be saved in guest mode. Login to save preferences.",
-                style: TextStyle(color: Colors.orange),
+                AppLocalizations.of(context)?.guestThemeWarning ??
+                    "Theme changes won't be saved in guest mode. Login to save preferences.",
+                style: const TextStyle(color: Colors.orange),
               ),
             ),
 
@@ -76,11 +79,12 @@ class settings_page extends StatelessWidget {
             },
           ),
           if (isGuest)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               child: Text(
-                "Language preference won't be saved in guest mode. Login to save preferences.",
-                style: TextStyle(color: Colors.orange),
+                AppLocalizations.of(context)?.guestLangWarning ??
+                    "Language preference won't be saved in guest mode. Login to save preferences.",
+                style: const TextStyle(color: Colors.orange),
               ),
             ),
         ],
