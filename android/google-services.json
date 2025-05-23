@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "714844457287",
+    "firebase_url": "https://shoppinglist-c5e60-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "shoppinglist-c5e60",
+    "storage_bucket": "shoppinglist-c5e60.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:714844457287:android:f8ba13b1fb316437cde462",
+        "android_client_info": {
+          "package_name": "com.example.cross"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "714844457287-8la5pjvfe850sma3r10jti4fjae3jmii.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPaTId_Igar8sG2PpFA_8tXfyEKxfVgIg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "714844457287-8la5pjvfe850sma3r10jti4fjae3jmii.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "714844457287-vica6kklqo9sej5gsn8thdl8i53ssa0a.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cross"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

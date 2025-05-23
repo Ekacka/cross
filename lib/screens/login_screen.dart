@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -45,6 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       // TODO: Navigate to home screen here
+
     } on FirebaseAuthException catch (e) {
       setState(() => _error = e.message ?? 'Authentication failed');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -71,6 +73,44 @@ class _LoginScreenState extends State<LoginScreen> {
       // TODO: Navigate to home screen here
     } on FirebaseAuthException catch (e) {
       setState(() => _error = e.message ?? "Guest login failed");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_error!)),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _error = null;
+      _isLoading = true;
+    });
+
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        setState(() => _isLoading = false);
+        return; // User cancelled
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+
+    } on FirebaseAuthException catch (e) {
+      setState(() => _error = e.message ?? 'Google sign-in failed');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_error!)),
+      );
+    } catch (e) {
+      setState(() => _error = 'Something went wrong with Google Sign-In');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(_error!)),
       );
@@ -145,6 +185,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
                     : const Text("Continue as Guest"),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton.icon(
+                onPressed: _isLoading ? null : _signInWithGoogle,
+                icon: const Icon(Icons.login),
+                label: const Text("Sign in with Google"),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
               ),
             ],
           ),
